@@ -1,0 +1,89 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+
+@Autonomous(group = "EncoderDrive", name = "Blue_2")
+public class testAuto3 extends LinearOpMode {
+
+    robotHardware MyRobot = new robotHardware();
+
+    private ElapsedTime runtime = new ElapsedTime();
+
+    public double       currentTime;
+    public double       setTime = 2.4;
+
+    static final double Counts_Per_Motor_Rev = 1680;
+    static final double Drive_Gear_Reduction = 2.0;
+    static final double Wheel_Diameter_Inches = 4.0;
+    static final double Counts_Per_Inch = (Counts_Per_Motor_Rev * Drive_Gear_Reduction) /(Wheel_Diameter_Inches * 3.1415);
+
+    static final double Drive_Speed = 1.0;
+    static final double Turn_Speed = 0.5;
+
+    @Override
+    public void runOpMode() {
+
+        MyRobot.init(hardwareMap);
+
+        waitForStart();
+
+        //robotLand();
+
+        sleep(1000);
+
+        encoderDrive(Drive_Speed, -50, -50, 1.90);
+        encoderDrive(Turn_Speed, -50, 50, 1.0);
+        encoderDrive(Drive_Speed, -30, -30, 0.5);
+
+    }
+
+
+
+    public void encoderDrive(double speed,
+                             double leftInches, double rightInches,
+                             double timeouts) {
+
+        int newLeftTarget;
+        int newRightTarget;
+
+        if (opModeIsActive()){
+
+            newLeftTarget = MyRobot.leftMotor.getCurrentPosition() + (int)(leftInches * Counts_Per_Inch);
+            newRightTarget = MyRobot.rightMotor.getCurrentPosition() + (int)(rightInches * Counts_Per_Inch);
+
+            MyRobot.leftMotor.setTargetPosition(newLeftTarget);
+            MyRobot.rightMotor.setTargetPosition(newRightTarget);
+
+            MyRobot.leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            MyRobot.rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            runtime.reset();
+            MyRobot.leftMotor.setPower(Math.abs(speed));
+            MyRobot.rightMotor.setPower(Math.abs(speed));
+
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeouts) &&
+                    (MyRobot.leftMotor.isBusy() && MyRobot.rightMotor.isBusy())) {
+
+                telemetry.addData("Path1", "Running to %7d : %7d", newLeftTarget, newRightTarget );
+                telemetry.addData("Path2", "Running to %7d : %7d" ,
+                        MyRobot.leftMotor.getCurrentPosition(),
+                        MyRobot.rightMotor.getCurrentPosition());
+                telemetry.update();
+            }
+
+            MyRobot.leftMotor.setPower(0);
+            MyRobot.rightMotor.setPower(0);
+
+            MyRobot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            MyRobot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            sleep(250);
+        }
+    }
+}
