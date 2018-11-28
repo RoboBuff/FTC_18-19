@@ -1,0 +1,54 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+@Disabled
+public class testAutoCode extends LinearOpMode {
+
+    testAuto1 auto1 = new testAuto1();
+    testAuto2 auto2 = new testAuto2();
+    testAuto3 auto3 = new testAuto3();
+    testAuto4 auto4 = new testAuto4();
+
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+
+        int option = 1;
+
+        while (opModeIsActive()){
+
+            if (option > 4){
+
+                option = 1;
+            }
+            if (gamepad1.a){
+
+                option++;
+            }
+
+        }
+        waitForStart();
+
+        switch (option){
+
+            case 1:
+                auto1.runOpMode();
+                break;
+
+            case 2:
+                auto2.runOpMode();
+                break;
+
+            case 3:
+                auto3.runOpMode();
+                break;
+
+            case 4:
+                auto4.runOpMode();
+                break;
+        }
+
+    }
+}
