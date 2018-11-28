@@ -1,0 +1,88 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+
+public class robotHardware {
+
+    /* Motor Declarations */
+
+    public DcMotor leftMotor    = null; // All the left motors are in the
+    public DcMotor leftMotor2   = null; // left brain.
+    public DcMotor rightMotor   = null;
+    public DcMotor rightMotor2  = null;
+
+    public DcMotor armMotor     = null;
+    public DcMotor linearMotor  = null;
+
+    /* Servo Declaration */
+
+    public Servo servoClaw      = null;
+    public Servo servoTilt      = null;
+
+    /* Variable Declaration*/
+
+    //int option                  = 0;
+    public final static double  clawOpen  = 0.8;
+    public final static double  clawClose = 0.1;
+
+
+    /* Sensor Declarations */
+
+    public TouchSensor  touchy   = null;
+
+    HardwareMap hwMap           = null;
+
+    public robotHardware(){
+
+
+    }
+
+    public void init(HardwareMap hwMap){
+
+        leftMotor   = hwMap.get(DcMotor.class, "left");
+        leftMotor2  = hwMap.get(DcMotor.class, "left2");
+        rightMotor  = hwMap.get(DcMotor.class, "right");
+        rightMotor2 = hwMap.get(DcMotor.class, "right2");
+
+        armMotor    = hwMap.get(DcMotor.class, "arm");
+        linearMotor = hwMap.get(DcMotor.class, "lift");
+
+        servoClaw   = hwMap.get(Servo.class, "claw");
+        servoTilt   = hwMap.get(Servo.class, "tilt");
+
+        touchy      = hwMap.get(TouchSensor.class, "touch");
+
+        rightMotor.setDirection(DcMotor.Direction.REVERSE);
+        leftMotor.setDirection(DcMotor.Direction.FORWARD);
+        rightMotor2.setDirection(DcMotor.Direction.REVERSE);
+        leftMotor2.setDirection(DcMotor.Direction.FORWARD);
+
+        armMotor.setDirection(DcMotor.Direction.FORWARD);
+        linearMotor.setDirection(DcMotor.Direction.FORWARD);
+
+        leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        leftMotor.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor.setPower(0);
+        rightMotor2.setPower(0);
+
+        armMotor.setPower(0);
+        linearMotor.setPower(0);
+
+    }
+}
