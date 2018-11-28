@@ -1,0 +1,67 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+@Disabled
+@Autonomous(group = "Simple", name = "BasicAutoDrive")
+public class simpleDrive extends LinearOpMode {
+
+    robotHardware MyRobot = new robotHardware();
+
+    public double       currentTime;
+    public double       setTime = 10;
+    public double       power = -1;
+
+    @Override
+    public void runOpMode(){
+
+       MyRobot.init(hardwareMap);
+
+        waitForStart();
+
+        while(opModeIsActive() && getRuntime() - setTime < currentTime) {
+
+            DriveForward();
+            sleep(1000);
+            TurnRight();
+            sleep(1000);
+            TurnLeft();
+            sleep(1000);
+
+
+        }
+
+     }
+
+    public void DriveForward(){
+
+        MyRobot.leftMotor.setPower(power);
+        MyRobot.rightMotor.setPower(power);
+
+      }
+
+    public void TurnLeft() {
+
+       MyRobot.leftMotor.setPower(-power);
+       MyRobot.rightMotor.setPower(power);
+
+       }
+
+    public void TurnRight() {
+
+        MyRobot.leftMotor.setPower(power);
+        MyRobot.rightMotor.setPower(-power);
+
+    }
+
+    public void DrvieBackwards(){
+
+        MyRobot.leftMotor.setPower(-power);
+        MyRobot.rightMotor.setPower(-power);
+
+    }
+
+}
+
