@@ -1,0 +1,146 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+@TeleOp(group = "TeleOp", name = "RobotDrive")
+public class teleOpDrive extends OpMode {
+
+    hardwareDrive       MyRobot         = new hardwareDrive();
+
+    private ElapsedTime     runtime                 = new ElapsedTime();
+
+    static final double Counts_Per_Motor_Rev = 1680;
+    static final double Drive_Gear_Reduction2 = 9.0;
+    static final double Wheel_Diameter_Inches = 2.8;
+    static final double Counts_Per_Inch2 = (Counts_Per_Motor_Rev * Drive_Gear_Reduction2) /(Wheel_Diameter_Inches * Math.PI);
+
+    static final double Drive_Speed = 1.0;
+    static final double lift_Speed  = 1.0;
+    static final double Turn_Speed = 0.5;
+
+    double Left;
+    double Right;
+
+    @Override
+    public void init() {
+
+        MyRobot.init(hardwareMap);
+
+    }
+
+    @Override
+    public void loop() {
+
+        powerControl();
+
+        autoLift();
+
+        debug();
+
+    }
+
+    private void powerControl(){
+
+        Right   = gamepad1.right_stick_y;
+        Left    = gamepad1.left_stick_y;
+
+        MyRobot.leftMotor.setPower(Left);
+        MyRobot.rightMotor.setPower(Right);
+
+        if (gamepad1.left_bumper){
+
+            encoderLift(lift_Speed, 66, 66, 2);
+            encoderLift(lift_Speed, -66, -66,2);
+
+        }
+
+
+    }
+
+    private void autoLift(){
+
+        if (gamepad1.a){
+
+            MyRobot.rightArmMotor.setPower(1);
+            MyRobot.leftArmMotor.setPower(1);
+        }else if (gamepad1.b){
+
+
+            MyRobot.rightArmMotor.setPower(-1);
+            MyRobot.leftArmMotor.setPower(-1);
+        }else {
+
+            MyRobot.rightArmMotor.setPower(0);
+            MyRobot.leftArmMotor.setPower(0);
+        }
+
+        if (gamepad1.x){
+            MyRobot.servo.setPosition(0.5);
+        }
+        if (gamepad1.y){
+            MyRobot.servo.setPosition(0);
+        }
+        if (gamepad1.dpad_down){
+            MyRobot.marker.setPosition(1);
+        }
+
+        if (gamepad1.left_bumper){
+
+            encoderLift(lift_Speed, 66, 66, 2);
+            encoderLift(lift_Speed, -66, -66,2);
+
+        }
+
+    }
+
+    public void encoderLift(double speed,
+                            double leftInches, double rightInches,
+                            double timeouts) {
+
+        int newLeftTarget, newRightTarget;
+
+            newLeftTarget = MyRobot.leftArmMotor.getCurrentPosition() + (int) (leftInches * Counts_Per_Inch2);
+            newRightTarget = MyRobot.rightArmMotor.getCurrentPosition() + (int) (rightInches * Counts_Per_Inch2);
+
+            MyRobot.leftArmMotor.setTargetPosition(newLeftTarget);
+            MyRobot.rightArmMotor.setTargetPosition(newRightTarget);
+
+            MyRobot.leftArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            MyRobot.rightArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            runtime.reset();
+
+            MyRobot.leftArmMotor.setPower(Math.abs(speed));
+            MyRobot.rightArmMotor.setPower(Math.abs(speed));
+
+
+            if ((runtime.seconds() < timeouts) &&
+                    (MyRobot.leftArmMotor.isBusy() && MyRobot.rightArmMotor.isBusy())){
+
+                telemetry.addData("Path1 ", "Running to %7d : &7d", newLeftTarget, newRightTarget);
+                telemetry.addData("Path2 ", "Running to %7d : %7d",
+                        MyRobot.leftArmMotor.getCurrentPosition(),
+                        MyRobot.rightArmMotor.getCurrentPosition());
+                telemetry.update();
+            }
+
+            MyRobot.leftArmMotor.setPower(0);
+            MyRobot.rightArmMotor.setPower(0);
+
+            MyRobot.leftArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            MyRobot.rightArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        }
+
+    private void debug(){
+
+        telemetry.addData("Power of left top wheel ", MyRobot.leftMotor.getPower());
+        telemetry.addData("Position of servo ", MyRobot.servo.getPosition());
+
+        telemetry.addData("Position of marker ", MyRobot.marker.getPosition());
+        telemetry.update();
+    }
+}
