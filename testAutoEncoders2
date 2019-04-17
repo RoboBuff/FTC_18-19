@@ -1,48 +1,67 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-
 @Autonomous(group = "EncoderDrive", name = "Blue_2")
-public class testAuto3 extends LinearOpMode {
+public class testAuto2 extends LinearOpMode {
 
-    robotHardware MyRobot = new robotHardware();
+    hardwareDrive MyRobot = new hardwareDrive();
 
     private ElapsedTime runtime = new ElapsedTime();
 
-    public double       currentTime;
-    public double       setTime = 2.4;
-
     static final double Counts_Per_Motor_Rev = 1680;
     static final double Drive_Gear_Reduction = 2.0;
-    static final double Wheel_Diameter_Inches = 4.0;
-    static final double Counts_Per_Inch = (Counts_Per_Motor_Rev * Drive_Gear_Reduction) /(Wheel_Diameter_Inches * 3.1415);
+    static final double Wheel_Diameter_Inches = 2.8;
+    static final double Counts_Per_Inch = (Counts_Per_Motor_Rev * Drive_Gear_Reduction) /(Wheel_Diameter_Inches * Math.PI);
+
+    static final double Drive_Gear_Reduction2 = 9.0;
+    static final double Counts_Per_Inch2 = (Counts_Per_Motor_Rev * Drive_Gear_Reduction2) /(Wheel_Diameter_Inches * Math.PI);
 
     static final double Drive_Speed = 1.0;
+    static final double lift_Speed  = 1.0;
     static final double Turn_Speed = 0.5;
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
 
         MyRobot.init(hardwareMap);
 
+        telemetry.addData("Status : ", "Resetting encoders");
+        telemetry.update();
+
+        encoderSetUp();
+
         waitForStart();
 
-        //robotLand();
+        encoderLift(lift_Speed, -66, -66, 2.0);
+        encoderLift(-lift_Speed, 66, 66, 2.0);
 
-        sleep(1000);
+        encoderDrive(Drive_Speed, -50, -50, 2.0);
+        encoderDrive(Turn_Speed, -50, 50, 2.0);
+        encoderDrive(Drive_Speed, 70, 70, 2.0);
+        encoderDrive(Drive_Speed, 50, -50, 2.0);
 
-        encoderDrive(Drive_Speed, -50, -50, 1.90);
-        encoderDrive(Turn_Speed, -50, 50, 1.0);
-        encoderDrive(Drive_Speed, -30, -30, 0.5);
+        telemetry.addData("Path : ", "Complete");
+        telemetry.update();
 
     }
 
+    public void encoderSetUp(){
 
+        MyRobot.rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        MyRobot.leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        MyRobot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        MyRobot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        telemetry.addData("Path0 ", "Starting at %7d : %7d",
+                MyRobot.leftMotor.getCurrentPosition(),
+                MyRobot.rightMotor.getCurrentPosition());
+        telemetry.update();
+    }
 
     public void encoderDrive(double speed,
                              double leftInches, double rightInches,
@@ -86,4 +105,50 @@ public class testAuto3 extends LinearOpMode {
             sleep(250);
         }
     }
+
+    public void encoderLift(double speed,
+                            double leftInches, double rightInches,
+                            double timeouts) {
+
+        int newLeftTarget, newRightTarget;
+
+        if (opModeIsActive()) {
+
+            newLeftTarget = MyRobot.leftArmMotor.getCurrentPosition() + (int) (leftInches * Counts_Per_Inch2);
+            newRightTarget = MyRobot.rightArmMotor.getCurrentPosition() + (int) (rightInches * Counts_Per_Inch2);
+
+            MyRobot.leftArmMotor.setTargetPosition(newLeftTarget);
+            MyRobot.rightArmMotor.setTargetPosition(newRightTarget);
+
+            MyRobot.leftArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            MyRobot.rightArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            runtime.reset();
+
+            MyRobot.leftArmMotor.setPower(Math.abs(speed));
+            MyRobot.rightArmMotor.setPower(Math.abs(speed));
+
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeouts) &&
+                    (MyRobot.leftArmMotor.isBusy() && MyRobot.rightArmMotor.isBusy())) {
+
+                telemetry.addData("Path1 ", "Running to %7d : &7d", newLeftTarget, newRightTarget);
+                telemetry.addData("Path2 ", "Running to %7d : %7d",
+                        MyRobot.leftArmMotor.getCurrentPosition(),
+                        MyRobot.rightArmMotor.getCurrentPosition());
+                telemetry.update();
+
+            }
+
+            MyRobot.leftArmMotor.setPower(0);
+            MyRobot.rightArmMotor.setPower(0);
+
+            MyRobot.leftArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            MyRobot.rightArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            sleep(250);
+        }
+
+    }
 }
+
